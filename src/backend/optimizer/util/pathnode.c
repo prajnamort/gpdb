@@ -1769,7 +1769,7 @@ set_append_path_locus(PlannerInfo *root, Path *pathnode, RelOptInfo *rel,
 		{ CdbLocusType_Strewn, CdbLocusType_Strewn,         CdbLocusType_Strewn },
 		{ CdbLocusType_Strewn, CdbLocusType_Replicated,     CdbLocusType_SingleQE },
 		{ CdbLocusType_Strewn, CdbLocusType_SegmentGeneral, CdbLocusType_SingleQE },
-		{ CdbLocusType_Strewn, CdbLocusType_General,        CdbLocusType_SingleQE },
+		{ CdbLocusType_Strewn, CdbLocusType_General,        CdbLocusType_Strewn },
 
 		{ CdbLocusType_Replicated, CdbLocusType_Replicated, CdbLocusType_Replicated },
 		{ CdbLocusType_Replicated, CdbLocusType_SegmentGeneral, CdbLocusType_Replicated },
@@ -1867,7 +1867,8 @@ set_append_path_locus(PlannerInfo *root, Path *pathnode, RelOptInfo *rel,
 			Path	   *subpath = (Path *) lfirst(l);
 			CdbPathLocus projectedlocus;
 
-			Assert(CdbPathLocus_IsPartitioned(subpath->locus));
+			Assert(CdbPathLocus_IsPartitioned(subpath->locus) ||
+			       CdbPathLocus_IsGeneral(subpath->locus));
 
 			/* Transform subpath locus into the appendrel's space for comparison. */
 			if (subpath->parent == rel ||
@@ -1928,7 +1929,8 @@ set_append_path_locus(PlannerInfo *root, Path *pathnode, RelOptInfo *rel,
 		if (CdbPathLocus_IsPartitioned(targetlocus))
 		{
 			/* we already determined that all the loci are compatible */
-			Assert(CdbPathLocus_IsPartitioned(subpath->locus));
+			Assert(CdbPathLocus_IsPartitioned(subpath->locus) ||
+			       CdbPathLocus_IsGeneral(subpath->locus));
 		}
 		else
 		{

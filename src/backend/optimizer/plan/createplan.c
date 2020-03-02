@@ -1093,6 +1093,14 @@ create_append_plan(PlannerInfo *root, AppendPath *best_path)
 		/* Must insist that all children return the same tlist */
 		subplan = create_plan_recurse(root, subpath, CP_EXACT_TLIST);
 
+		if (CdbPathLocus_IsPartitioned(best_path->path.locus) &&
+		    CdbPathLocus_IsGeneral(subpath->locus)) {
+		    subplan = (Plan *) make_result(subplan->targetlist,
+                                           (Node *) list_make1(makeSegmentFilterExpr(0)),
+                                           subplan);
+            copy_generic_path_info(subplan, (Path *) subpath);
+		}
+
 		subplans = lappend(subplans, subplan);
 	}
 
